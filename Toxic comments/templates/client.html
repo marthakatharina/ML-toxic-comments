@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Toxic Comment Detector</title>
+        <link
+            rel="stylesheet"
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@200..700&display=swap"
+        />
+        <style>
+            body {
+                font-family: "Inter", Arial, sans-serif;
+                max-width: 800px;
+                margin: 0 auto;
+                padding: 20px;
+            }
+            textarea {
+                width: 100%;
+                height: 150px;
+                margin: 10px 0;
+                border-radius: 8px;
+                border: 2px solid #3f3f3f;
+                background: #fffff0;
+            }
+            #analyzeBtn {
+                padding: 1em;
+                border: 2px solid #3f3f3f;
+                border-radius: 6px;
+                background-color: #eaeaea;
+                color: #3f3f3f;
+                font-weight: 700;
+            }
+            #result {
+                margin-top: 3em;
+            }
+            .toxic {
+                background-color: #ffdddd;
+                padding: 10px;
+                border-left: 3px solid red;
+            }
+            .non-toxic {
+                background-color: #ddffdd;
+                padding: 10px;
+                border-left: 3px solid green;
+            }
+            .category {
+                margin: 5px 0;
+            }
+            .category-name {
+                font-weight: 600;
+            }
+            .category-score {
+                margin-left: 10px;
+                color: #3f3f3f;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Toxic Comment Detector</h1>
+        <textarea
+            id="commentInput"
+            placeholder="Enter a comment to analyze..."
+        ></textarea>
+        <button id="analyzeBtn">Analyze Comment</button>
+        <div id="result"></div>
+        <div id="details"></div>
+
+        <script>
+            document
+                .getElementById("analyzeBtn")
+                .addEventListener("click", analyzeComment);
+
+            async function analyzeComment() {
+                const comment = document.getElementById("commentInput").value;
+                if (!comment) {
+                    alert("Please enter a comment");
+                    return;
+                }
+
+                try {
+                    const response = await fetch("/", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ text: comment }),
+                    });
+
+                    const data = await response.json();
+
+                    if (response.status !== 200) {
+                        throw new Error(data.error || "Unknown error");
+                    }
+
+                    displayResults(data);
+                } catch (error) {
+                    document.getElementById(
+                        "result"
+                    ).innerHTML = `<div class="toxic">Error: ${error.message}</div>`;
+                    console.error("Error:", error);
+                }
+            }
+
+            function displayResults(data) {
+                const resultDiv = document.getElementById("result");
+                const detailsDiv = document.getElementById("details");
+
+                const isToxic = Object.values(data.predictions).some(
+                    (score) => score > 0.5
+                );
+
+                resultDiv.innerHTML = isToxic
+                    ? `<div class="toxic">⚠️  Toxic content detected (max confidence: ${data.overall_score.toFixed(
+                          2
+                      )})</div>`
+                    : `<div class="non-toxic">✅  No toxic content detected (max confidence: ${data.overall_score.toFixed(
+                          2
+                      )})</div>`;
+
+                detailsDiv.innerHTML =
+                    "<h3>Toxicity Breakdown:</h3>" +
+                    Object.entries(data.predictions)
+                        .map(
+                            ([category, score]) => `
+                        <div class="category">
+                            <span class="category-name">${category.replace(
+                                "_",
+                                " "
+                            )}:</span>
+                            <span class="category-score">${score.toFixed(
+                                2
+                            )}</span>
+                        </div>
+                    `
+                        )
+                        .join("");
+            }
+        </script>
+    </body>
+</html>
