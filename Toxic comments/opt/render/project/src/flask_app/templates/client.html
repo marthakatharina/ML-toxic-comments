@@ -13,13 +13,21 @@
                 margin: 0 auto;
                 padding: 20px;
             }
+            h1,
+            h2 {
+                text-align: center;
+            }
+            p {
+                font-size: 14px;
+                color: #3f3f3f;
+            }
             textarea {
                 width: 100%;
                 height: 150px;
                 margin: 10px 0;
                 border-radius: 8px;
                 border: 2px solid #3f3f3f;
-                background: #fffff0;
+                background: #fefef6;
             }
             #analyzeBtn {
                 padding: 1em;
@@ -42,8 +50,13 @@
                 padding: 10px;
                 border-left: 3px solid green;
             }
+            #details {
+                display: flex;
+                align-items: center;
+            }
             .category {
                 margin: 5px 0;
+                text-align: center;
             }
             .category-name {
                 font-weight: 600;
@@ -52,10 +65,32 @@
                 margin-left: 10px;
                 color: #3f3f3f;
             }
+            @media (max-width: 1024px) {
+                #details {
+                    display: block;
+                    padding-top: 1em;
+                }
+                .category {
+                    text-align: left;
+                }
+            }
         </style>
     </head>
     <body>
         <h1>Toxic Comment Detector</h1>
+        <p>
+            This tool uses advanced Natural Language Processing (NLP) and
+            Machine Learning to automatically identify harmful content in online
+            comments. Powered by a custom AI model trained with SpaCy, the
+            system analyzes text for multiple toxicity categories by recognizing
+            patterns in language that typically indicate harmful intent. The
+            model evaluates each comment through its neural network, assigning
+            confidence scores to different toxicity types based on what it
+            learned from thousands of example comments during training. While no
+            AI is perfect, this implementation demonstrates how NLP technologies
+            can help moderate online discussions by flagging potentially toxic
+            content for human review. Try it yourself!
+        </p>
         <textarea
             id="commentInput"
             placeholder="Enter a comment to analyze..."
@@ -106,13 +141,15 @@
                     (score) => score > 0.5
                 );
 
-                resultDiv.innerHTML = isToxic
-                    ? `<div class="toxic">⚠️  Toxic content detected (max confidence: ${data.overall_score.toFixed(
-                          2
-                      )})</div>`
-                    : `<div class="non-toxic">✅  No toxic content detected (max confidence: ${data.overall_score.toFixed(
-                          2
-                      )})</div>`;
+                resultDiv.innerHTML =
+                    "<h2>Analysis Result</h2>" +
+                    (isToxic
+                        ? `<div class="toxic">⚠️  Toxic content detected (max confidence: ${data.overall_score.toFixed(
+                              2
+                          )})</div>`
+                        : `<div class="non-toxic">✅  No toxic content detected (max confidence: ${data.overall_score.toFixed(
+                              2
+                          )})</div>`);
 
                 detailsDiv.innerHTML =
                     "<h3>Toxicity Breakdown:</h3>" +
